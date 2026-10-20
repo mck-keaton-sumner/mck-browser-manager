@@ -2,11 +2,12 @@
   "manifest_version": 3,
   "name": "MCK Browser Manager",
   "short_name": "MCK Browser Manager",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "McKinney enterprise browser utility. One-click cache clearing plus managed performance and privacy controls. Managed by IT Help Desk.",
   "author": "McKinney IT",
   "minimum_chrome_version": "110",
   "permissions": [
+    "tabs",
     "browsingData",
     "storage",
     "privacy",

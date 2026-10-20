@@ -645,10 +645,7 @@ function initTabMemory() {
   async function refresh() {
     let tabs;
     try {
-      // Route through the service worker so url/title/favIconUrl are populated
-      // from the background's changeInfo cache (no `tabs` permission required).
-      const resp = await chrome.runtime.sendMessage({ type: "GET_TABS_INFO" });
-      tabs = resp?.tabs || [];
+      tabs = await chrome.tabs.query({});
     } catch (e) {
       return;
     }

@@ -37,9 +37,9 @@ const tabLastActive = {};
 /* Tracks tab IDs that were freshly created this session (for deduplication). */
 const newTabIds = new Set();
 
-/* Caches tab metadata captured from onUpdated changeInfo events.
-   Populated via changeInfo, which is available without the `tabs` permission.
-   Used by deduplication and the GET_TABS_INFO message handler. */
+/* Caches tab metadata (url/title/favicon) for deduplication.
+   Seeded from chrome.tabs.query on install/startup/worker wake, then kept
+   current via onUpdated changeInfo. Requires the `tabs` permission. */
 const tabUrlMap     = new Map(); // tabId → URL string
 const tabTitleMap   = new Map(); // tabId → page title string
 const tabFaviconMap = new Map(); // tabId → favIconUrl string
@@ -294,12 +294,30 @@ function normalizeTabUrl(url) {
  * Event listeners
  * ------------------------------------------------------------------ */
 
+// Populate the tab caches from all currently open tabs. Needed because tabs
+// that were open before the service worker started never fire onUpdated.
+async function seedTabMaps() {
+  try {
+    const tabs = await chrome.tabs.query({});
+    for (const t of tabs) {
+      if (t.url)        tabUrlMap.set(t.id, t.url);
+      if (t.title)      tabTitleMap.set(t.id, t.title);
+      if (t.favIconUrl) tabFaviconMap.set(t.id, t.favIconUrl);
+    }
+  } catch (e) {
+    // Ignore; caches will fill as tabs update.
+  }
+}
+// MV3 service workers can restart without onInstalled/onStartup firing.
+seedTabMaps();
+
 // Seed defaults on first install / upgrade, then apply managed settings.
 chrome.runtime.onInstalled.addListener(async () => {
   const current = await chrome.storage.local.get(null);
   const merged = { ...DEFAULT_SETTINGS, ...current };
   await chrome.storage.local.set(merged);
   await applyAllSettings(merged);
+  await seedTabMaps();
 });
 
 // On Chrome startup: clear cache (if enabled) and re-apply all settings.
@@ -309,6 +327,7 @@ chrome.runtime.onStartup.addListener(async () => {
     await clearCache();
   }
   await applyAllSettings(settings);
+  await seedTabMaps();
 });
 
 // Mark brand-new tabs so the dedup listener can distinguish them from
@@ -418,31 +437,6 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
         case "APPLY_ALL": {
           await applyAllSettings();
           sendResponse({ ok: true });
-          break;
-        }
-        case "GET_TABS_INFO": {
-          // Returns tab objects enriched with cached url/title/favIconUrl
-          // from our Maps (captured via changeInfo — no `tabs` permission needed).
-          let rawTabs;
-          try {
-            rawTabs = await chrome.tabs.query({});
-          } catch (e) {
-            rawTabs = [];
-          }
-          const enriched = rawTabs.map((t) => ({
-            id:           t.id,
-            windowId:     t.windowId,
-            index:        t.index,
-            active:       t.active,
-            pinned:       t.pinned,
-            audible:      t.audible,
-            discarded:    t.discarded,
-            lastAccessed: t.lastAccessed,
-            url:          tabUrlMap.get(t.id)     || "",
-            title:        tabTitleMap.get(t.id)   || "",
-            favIconUrl:   tabFaviconMap.get(t.id) || ""
-          }));
-          sendResponse({ ok: true, tabs: enriched });
           break;
         }
         default:
