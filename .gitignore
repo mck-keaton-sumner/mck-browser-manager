@@ -1,0 +1,12 @@
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+*.log
+.vscode/
+.idea/
+
+# Packaged builds (source only in this repo)
+*.zip
+*.crx
+*.pem
+debug-processes.html

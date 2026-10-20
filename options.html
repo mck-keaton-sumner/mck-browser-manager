@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MCK Browser Manager - Settings</title>
+    <link rel="stylesheet" href="popup.css" />
+    <style>
+      /* Options page runs full-width, so relax the 320px popup constraint. */
+      html,
+      body {
+        width: 100%;
+        background: var(--mck-gray);
+      }
+      .options-wrap {
+        max-width: 560px;
+        margin: 32px auto;
+        background: var(--mck-white);
+        border: 1px solid var(--mck-gray-border);
+        border-radius: 14px;
+        box-shadow: var(--mck-shadow);
+        overflow: hidden;
+      }
+      .options-body {
+        padding: 20px 24px 8px;
+      }
+      .options-title {
+        font-size: 15px;
+        font-weight: 700;
+        margin-bottom: 4px;
+      }
+      .options-desc {
+        font-size: 12.5px;
+        color: var(--mck-text-sub);
+        margin-bottom: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="options-wrap">
+      <header class="header">
+        <img class="header__logo" src="assets/logo.png" alt="McKinney" />
+        <div class="header__meta">
+          <span class="header__title">Browser Manager</span>
+          <span class="header__subtitle">Settings</span>
+        </div>
+      </header>
+
+      <div class="options-body">
+        <div class="options-title">Startup</div>
+        <div class="options-desc">
+          Configure how MCK Browser Manager behaves when Chrome launches.
+        </div>
+
+        <div class="toggle-row">
+          <div class="toggle-row__text">
+            <span class="toggle-row__title">Auto-clear cache on startup</span>
+            <span class="toggle-row__sub">
+              Automatically clears the cache every time Chrome starts.
+              Recommended by IT.
+            </span>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="clearOnStartup" />
+            <span class="switch__slider"></span>
+          </label>
+        </div>
+
+        <div class="managed-note">
+          <span class="managed-note__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                 stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z" />
+            </svg>
+          </span>
+          <span>
+            Performance and Privacy controls are available from the toolbar
+            popup. This extension is centrally managed by McKinney IT.
+          </span>
+        </div>
+      </div>
+
+      <footer class="footer">
+        <span class="footer__managed">
+          Managed by
+          <!-- SET YOUR OWN support URL in the href below before deploying. -->
+          <a
+            href="#"
+            target="_blank"
+            rel="noopener noreferrer"
+            >IT Help Desk</a
+          >
+        </span>
+        <span class="footer__version">v<span id="versionNumber">1.0.0</span></span>
+      </footer>
+    </div>
+
+    <script src="options.js"></script>
+  </body>
+</html>
